@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Flip Clock</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        coral: {
+                            DEFAULT: '#f0643b',
+                            hover: '#e0532a',
+                            soft: 'rgba(240, 100, 59, 0.14)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ==========================================
+           VARIABLES DE TEMA (GLASSMORPHISM UNIFICADO)
+           ========================================== */
+        :root {
+            --bg-base: #f5efe8;
+            --card-bg: rgba(255, 253, 250, 0.62);
+            --card-border: rgba(255, 255, 255, 0.65);
+            --card-shadow: 0 24px 64px rgba(35, 25, 20, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+            --pill-bg: rgba(255, 255, 255, 0.65);
+            --pill-border: rgba(255, 255, 255, 0.6);
+            --pill-hover: rgba(255, 255, 255, 0.92);
+            --tab-track: rgba(235, 228, 218, 0.6);
+            --tab-active-bg: rgba(255, 255, 255, 0.88);
+            --tab-active-border: rgba(255, 255, 255, 0.8);
+            --text-primary: #1a1a1a;
+            --text-secondary: #6e6a63;
+            --text-muted: #9e9a93;
+            --flip-top-bg: rgba(247, 244, 239, 0.82);
+            --flip-bottom-bg: rgba(239, 235, 228, 0.88);
+            --flip-border: rgba(255, 255, 255, 0.7);
+            --flip-hinge: rgba(155, 148, 138, 0.45);
+            --flip-text: #1c1c1c;
+            --input-bg: rgba(245, 241, 235, 0.68);
+            --input-border: rgba(255, 255, 255, 0.65);
+            --wave-track: rgba(26, 26, 26, 0.14);
+            --accent-main: #f0643b;
+            --accent-hover: #e0532a;
+            --accent-soft: rgba(240, 100, 59, 0.15);
+            --accent-btn-text: #ffffff;
+            --glass-blur: blur(24px) saturate(165%);
+        }
+
+        [data-theme="dark"] {
+            --bg-base: #0a0a0c;
+            --card-bg: rgba(24, 24, 28, 0.56);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow: 0 28px 72px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            --pill-bg: rgba(28, 28, 33, 0.58);
+            --pill-border: rgba(255, 255, 255, 0.1);
+            --pill-hover: rgba(42, 42, 50, 0.78);
+            --tab-track: rgba(16, 16, 20, 0.65);
+            --tab-active-bg: rgba(44, 44, 52, 0.72);
+            --tab-active-border: rgba(255, 255, 255, 0.12);
+            --text-primary: #f5f5f5;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --flip-top-bg: rgba(38, 38, 44, 0.74);
+            --flip-bottom-bg: rgba(28, 28, 34, 0.82);
+            --flip-border: rgba(255, 255, 255, 0.1);
+            --flip-hinge: rgba(0, 0, 0, 0.75);
+            --flip-text: #fafafa;
+            --input-bg: rgba(20, 20, 24, 0.65);
+            --input-border: rgba(255, 255, 255, 0.1);
+            --wave-track: rgba(255, 255, 255, 0.16);
+            --accent-main: #f0643b;
+            --accent-hover: #e0532a;
+            --accent-soft: rgba(240, 100, 59, 0.18);
+            --accent-btn-text: #ffffff;
+            --glass-blur: blur(26px) saturate(160%);
+        }
+
+        /* Tema Neo (Cápsulas azules degradadas sobre fondo petróleo oscuro) */
+        [data-theme="neo"] {
+            --bg-base: #081822;
+            --card-bg: rgba(10, 27, 38, 0.52);
+            --card-border: rgba(145, 212, 245, 0.22);
+            --card-shadow: 0 28px 72px rgba(2, 10, 18, 0.75);
+            --pill-bg: rgba(12, 34, 48, 0.58);
+            --pill-border: rgba(145, 212, 245, 0.22);
+            --pill-hover: rgba(22, 56, 78, 0.75);
+            --tab-track: rgba(7, 20, 29, 0.65);
+            --tab-active-bg: rgba(26, 72, 102, 0.75);
+            --tab-active-border: rgba(145, 212, 245, 0.35);
+            --text-primary: #eef8fd;
+            --text-secondary: #a2cde3;
+            --text-muted: #6c9bb3;
+            --flip-top-bg: rgba(17, 46, 66, 0.72);
+            --flip-bottom-bg: rgba(12, 34, 50, 0.82);
+            --flip-border: rgba(145, 212, 245, 0.22);
+            --flip-hinge: rgba(4, 14, 22, 0.85);
+            --flip-text: #f2faff;
+            --input-bg: rgba(8, 24, 35, 0.65);
+            --input-border: rgba(145, 212, 245, 0.2);
+            --wave-track: rgba(174, 224, 248, 0.2);
+            --accent-main: #5cc2f2;
+            --accent-hover: #42b0e6;
+            --accent-soft: rgba(92, 194, 242, 0.2);
+            --accent-btn-text: #061824;
+            --glass-blur: blur(22px) saturate(155%);
+        }
+
+        /* Tema Ultra 23 (Esfera planetaria DeX con halo índigo) */
+        [data-theme="ultra23"] {
+            --bg-base: #030306;
+            --card-bg: rgba(15, 16, 26, 0.52);
+            --card-border: rgba(130, 140, 248, 0.22);
+            --card-shadow: 0 28px 72px rgba(0, 0, 0, 0.85);
+            --pill-bg: rgba(20, 22, 36, 0.58);
+            --pill-border: rgba(130, 140, 248, 0.22);
+            --pill-hover: rgba(34, 38, 62, 0.75);
+            --tab-track: rgba(10, 11, 18, 0.68);
+            --tab-active-bg: rgba(46, 50, 86, 0.75);
+            --tab-active-border: rgba(145, 155, 255, 0.35);
+            --text-primary: #f2f3ff;
+            --text-secondary: #a8add4;
+            --text-muted: #6e7399;
+            --flip-top-bg: rgba(26, 28, 44, 0.74);
+            --flip-bottom-bg: rgba(18, 20, 34, 0.84);
+            --flip-border: rgba(130, 140, 248, 0.2);
+            --flip-hinge: rgba(4, 4, 10, 0.88);
+            --flip-text: #f7f8ff;
+            --input-bg: rgba(12, 13, 22, 0.65);
+            --input-border: rgba(130, 140, 248, 0.2);
+            --wave-track: rgba(155, 165, 255, 0.2);
+            --accent-main: #7880f0;
+            --accent-hover: #636ce6;
+            --accent-soft: rgba(120, 128, 240, 0.22);
+            --accent-btn-text: #ffffff;
+            --glass-blur: blur(22px) saturate(155%);
+        }
+
+        /* Tema Personalizado conectado al fondo de pantalla elegido */
+        [data-theme="wallpaper"] {
+            --bg-base: #121214;
+            --card-bg: rgba(22, 22, 26, 0.54);
+            --card-border: rgba(255, 255, 255, 0.16);
+            --card-shadow: 0 28px 72px rgba(0, 0, 0, 0.65);
+            --pill-bg: rgba(26, 26, 30, 0.55);
+            --pill-border: rgba(255, 255, 255, 0.16);
+            --pill-hover: rgba(44, 44, 52, 0.72);
+            --tab-track: rgba(15, 15, 18, 0.55);
+            --tab-active-bg: rgba(255, 255, 255, 0.16);
+            --tab-active-border: rgba(255, 255, 255, 0.22);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.78);
+            --text-muted: rgba(255, 255, 255, 0.55);
+            --flip-top-bg: rgba(34, 34, 40, 0.72);
+            --flip-bottom-bg: rgba(24, 24, 29, 0.78);
+            --flip-border: rgba(255, 255, 255, 0.14);
+            --flip-hinge: rgba(0, 0, 0, 0.65);
+            --flip-text: #ffffff;
+            --input-bg: rgba(18, 18, 22, 0.52);
+            --input-border: rgba(255, 255, 255, 0.14);
+            --wave-track: rgba(255, 255, 255, 0.22);
+            --accent-main: #f0643b;
+            --accent-hover: #e0532a;
+            --accent-soft: rgba(240, 100, 59, 0.22);
+            --accent-btn-text: #ffffff;
+            --glass-blur: blur(22px) saturate(150%);
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            transition: background-color 0.45s ease, color 0.35s ease;
+            overflow-x: hidden;
+        }
+
+        /* ==========================================
+           FONDOS AMBIENTALES, WALLPAPER Y SVG TEMÁTICOS
+           ========================================== */
+        #ambient-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        #wallpaper-layer {
+            position: absolute;
+            inset: -24px;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            filter: blur(8px) brightness(0.75);
+            transform: scale(1.04);
+            transition: opacity 0.6s ease;
+        }
+
+        [data-theme="wallpaper"] #wallpaper-layer.has-image {
+            opacity: 1;
+        }
+
+        .theme-art-layer {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.55s ease;
+        }
+
+        [data-theme="neo"] #neo-art-layer {
+            opacity: 1;
+        }
+
+        [data-theme="ultra23"] #ultra23-art-layer {
+            opacity: 1;
+        }
+
+        .ambient-glow-1 {
+            position: absolute;
+            top: -10%;
+            left: -5%;
+            width: 58vw;
+            height: 58vw;
+            border-radius: 9999px;
+            background: radial-gradient(circle, rgba(240, 100, 59, 0.22) 0%, transparent 68%);
+            filter: blur(55px);
+            transition: background 0.6s ease, opacity 0.6s ease;
+        }
+
+        .ambient-glow-2 {
+            position: absolute;
+            bottom: -14%;
+            right: -6%;
+            width: 62vw;
+            height: 62vw;
+            border-radius: 9999px;
+            background: radial-gradient(circle, rgba(130, 120, 235, 0.2) 0%, transparent 68%);
+            filter: blur(65px);
+            transition: background 0.6s ease, opacity 0.6s ease;
+        }
+
+        [data-theme="dark"] .ambient-glow-1 {
+            background: radial-gradient(circle, rgba(240, 100, 59, 0.24) 0%, transparent 68%);
+        }
+
+        [data-theme="dark"] .ambient-glow-2 {
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, transparent 68%);
+        }
+
+        [data-theme="neo"] .ambient-glow-1,
+        [data-theme="neo"] .ambient-glow-2,
+        [data-theme="ultra23"] .ambient-glow-1,
+        [data-theme="ultra23"] .ambient-glow-2 {
+            opacity: 0;
+        }
+
+        /* Superficies Glassmorphism unificadas */
+        .themed-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--card-shadow);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .themed-pill {
+            background-color: var(--pill-bg);
+            border: 1px solid var(--pill-border);
+            color: var(--text-primary);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            transition: all 0.22s ease;
+        }
+
+        .themed-pill:hover {
+            background-color: var(--pill-hover);
+        }
+
+        .themed-pill.active-preset {
+            border-color: var(--accent-main);
+            box-shadow: 0 0 0 1px var(--accent-main), 0 6px 18px var(--accent-soft);
+        }
+
+        .themed-tab-track {
+            background-color: var(--tab-track);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: background-color 0.4s ease;
+        }
+
+        .themed-tab-active {
+            background-color: var(--tab-active-bg);
+            border: 1px solid var(--tab-active-border);
+            color: var(--text-primary);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .themed-tab-inactive {
+            color: var(--text-secondary);
+        }
+
+        .themed-tab-inactive:hover {
+            color: var(--text-primary);
+        }
+
+        .themed-input {
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-primary);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .themed-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .themed-input:focus {
+            outline: none;
+            border-color: var(--accent-main);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .accent-btn {
+            background-color: var(--accent-main);
+            color: var(--accent-btn-text);
+            box-shadow: 0 8px 24px var(--accent-soft);
+        }
+
+        .accent-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .accent-dot {
+            background-color: var(--accent-main);
+        }
+
+        /* ==========================================
+           FLIP CLOCK 3D MECÁNICO REALISTA (660ms)
+           ========================================== */
+        .flip-unit {
+            position: relative;
+            width: 82px;
+            height: 118px;
+            border-radius: 16px;
+            perspective: 1100px;
+            user-select: none;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14);
+        }
+
+        @media (min-width: 640px) {
+            .flip-unit {
+                width: 116px;
+                height: 166px;
+                border-radius: 20px;
+            }
+        }
+
+        .flip-half {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            overflow: hidden;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-left: 1px solid var(--flip-border);
+            border-right: 1px solid var(--flip-border);
+        }
+
+        .flip-half span {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 200%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 4.35rem;
+            line-height: 1;
+            letter-spacing: -0.04em;
+            color: var(--flip-text);
+            font-variant-numeric: tabular-nums;
+        }
+
+        @media (min-width: 640px) {
+            .flip-half span {
+                font-size: 6.3rem;
+            }
+        }
+
+        .flip-top {
+            top: 0;
+            border-top: 1px solid var(--flip-border);
+            border-radius: 16px 16px 0 0;
+            background: var(--flip-top-bg);
+            transform-origin: 50% 100%;
+        }
+
+        @media (min-width: 640px) {
+            .flip-top {
+                border-radius: 20px 20px 0 0;
+            }
+        }
+
+        .flip-top span {
+            top: 0;
+        }
+
+        .flip-bottom {
+            bottom: 0;
+            border-bottom: 1px solid var(--flip-border);
+            border-radius: 0 0 16px 16px;
+            background: var(--flip-bottom-bg);
+            transform-origin: 50% 0%;
+        }
+
+        @media (min-width: 640px) {
+            .flip-bottom {
+                border-radius: 0 0 20px 20px;
+            }
+        }
+
+        .flip-bottom span {
+            bottom: 0;
+        }
+
+        .flip-flap-top {
+            z-index: 4;
+            animation: flipTopDown 0.33s cubic-bezier(0.37, 0.01, 0.94, 0.35) forwards;
+        }
+
+        .flip-flap-top::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.42) 100%);
+            opacity: 0;
+            animation: shadowTopDown 0.33s ease-in forwards;
+        }
+
+        .flip-flap-bottom {
+            z-index: 5;
+            transform: rotateX(90deg);
+            animation: flipBottomDown 0.33s cubic-bezier(0.15, 0.45, 0.28, 1) 0.33s forwards;
+            box-shadow: 0 14px 24px rgba(0, 0, 0, 0.28);
+        }
+
+        .flip-flap-bottom::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.35) 100%);
+            opacity: 1;
+            animation: shadowBottomDown 0.33s ease-out 0.33s forwards;
+        }
+
+        @keyframes flipTopDown {
+            0% { transform: rotateX(0deg); }
+            100% { transform: rotateX(-90deg); }
+        }
+
+        @keyframes flipBottomDown {
+            0% { transform: rotateX(90deg); }
+            100% { transform: rotateX(0deg); }
+        }
+
+        @keyframes shadowTopDown {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes shadowBottomDown {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .flip-hinge {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--flip-hinge);
+            transform: translateY(-50%);
+            z-index: 6;
+            pointer-events: none;
+        }
+
+        .colon-dot {
+            background-color: var(--text-muted);
+            transition: background-color 0.35s ease;
+        }
+
+        /* ==========================================
+           MODO MINI TIMER (COMPACTO INTERNO DE RESPALDO)
+           ========================================== */
+        body.mini-mode {
+            padding: 0.75rem !important;
+        }
+
+        body.mini-mode .hide-in-mini {
+            display: none !important;
+        }
+
+        body.mini-mode #main-card {
+            max-width: 390px !important;
+            padding: 1.25rem !important;
+            border-radius: 1.5rem !important;
+        }
+
+        body.mini-mode .flip-unit {
+            width: 58px !important;
+            height: 84px !important;
+            border-radius: 12px !important;
+        }
+
+        body.mini-mode .flip-half span {
+            font-size: 3.1rem !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 antialiased selection:bg-coral/20">
+
+    <!-- Capa Ambiental y Fondos Visuales -->
+    <div id="ambient-backdrop">
+        <!-- Wallpaper personalizado cargado por el usuario -->
+        <div id="wallpaper-layer"></div>
+
+        <!-- Arte vectorial Tema Neo (10 cápsulas azules degradadas) -->
+        <div id="neo-art-layer" class="theme-art-layer flex items-center justify-center">
+            <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
+                <defs>
+                    <filter id="neoPillShadow" x="-15%" y="-10%" width="140%" height="120%">
+                        <feDropShadow dx="8" dy="0" stdDeviation="12" flood-color="#010912" flood-opacity="0.48"/>
+                    </filter>
+                    <linearGradient id="neoBar1" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#e3f2fa"/><stop offset="100%" stop-color="#cde6f4"/>
+                    </linearGradient>
+                    <linearGradient id="neoBar2" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#c6e5f5"/><stop offset="100%" stop-color="#add7ee"/>
+                    </linearGradient>
+                    <linearGradient id="neoBar3" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#a2d5ee"/><stop offset="100%" stop-color="#87c5e5"/>
+                    </linearGradient>
+                    <linearGradient id="neoBar4" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#7ec3e6"/><stop offset="100%" stop-color="#64b2db"/>
+                    </linearGradient>
+                    <linearGradient id="neoBar5" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#5bb1dc"/><stop offset="100%" stop-color="#449ecf"/>
+                    </linearGradient>
+                    <linearGradient id="neoBar6" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#3f98cc"/><stop offset="100%" stop-color="#2f83bb"/>
+                    </linearGradient>
+                    <linearGradient id="neoBar7" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#2c7ab8"/><stop offset="100%" stop-color="#2063a3"/>
+                    </linearGradient>
+                    <linearGradient id="neoBar8" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#1d569b"/><stop offset="100%" stop-color="#143d82"/>
+                    </linearGradient>
+                    <linearGradient id="neoBar9" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#112b78"/><stop offset="100%" stop-color="#0b1b5e"/>
+                    </linearGradient>
+                    <linearGradient id="neoBar10" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#091552"/><stop offset="100%" stop-color="#050b38"/>
+                    </linearGradient>
+                </defs>
+                <rect width="1600" height="900" fill="#081822"/>
+                <g filter="url(#neoPillShadow)">
+                    <rect x="240" y="130" width="190" height="640" rx="95" fill="url(#neoBar1)"/>
+                    <rect x="344" y="130" width="190" height="640" rx="95" fill="url(#neoBar2)"/>
+                    <rect x="448" y="130" width="190" height="640" rx="95" fill="url(#neoBar3)"/>
+                    <rect x="552" y="130" width="190" height="640" rx="95" fill="url(#neoBar4)"/>
+                    <rect x="656" y="130" width="190" height="640" rx="95" fill="url(#neoBar5)"/>
+                    <rect x="760" y="130" width="190" height="640" rx="95" fill="url(#neoBar6)"/>
+                    <rect x="864" y="130" width="190" height="640" rx="95" fill="url(#neoBar7)"/>
+                    <rect x="968" y="130" width="190" height="640" rx="95" fill="url(#neoBar8)"/>
+                    <rect x="1072" y="130" width="190" height="640" rx="95" fill="url(#neoBar9)"/>
+                    <rect x="1176" y="130" width="190" height="640" rx="95" fill="url(#neoBar10)"/>
+                </g>
+            </svg>
+        </div>
+
+        <!-- Arte vectorial Tema Ultra 23 (Esfera cósmica Samsung DeX) -->
+        <div id="ultra23-art-layer" class="theme-art-layer flex items-center justify-center">
+            <svg viewBox="0 0 1200 1200" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
+                <defs>
+                    <radialGradient id="s23OuterHalo" cx="55%" cy="52%" r="46%">
+                        <stop offset="52%" stop-color="#3a3fa8" stop-opacity="0.38"/>
+                        <stop offset="76%" stop-color="#1e2261" stop-opacity="0.18"/>
+                        <stop offset="100%" stop-color="#030306" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="s23SphereBody" cx="38%" cy="48%" r="60%">
+                        <stop offset="0%" stop-color="#7c7c85"/>
+                        <stop offset="48%" stop-color="#62626c"/>
+                        <stop offset="75%" stop-color="#3a3c78"/>
+                        <stop offset="92%" stop-color="#14163b"/>
+                        <stop offset="100%" stop-color="#060612"/>
+                    </radialGradient>
+                    <linearGradient id="s23CrescentRim" x1="25%" y1="92%" x2="92%" y2="30%">
+                        <stop offset="0%" stop-color="#9ca3ff" stop-opacity="0.72"/>
+                        <stop offset="48%" stop-color="#6c73f0" stop-opacity="0.88"/>
+                        <stop offset="85%" stop-color="#3c42a8" stop-opacity="0.25"/>
+                        <stop offset="100%" stop-color="#191b4d" stop-opacity="0"/>
+                    </linearGradient>
+                    <clipPath id="s23CrescentClip">
+                        <circle cx="622" cy="512" r="358"/>
+                    </clipPath>
+                    <filter id="s23RimBlur" x="-15%" y="-15%" width="130%" height="130%">
+                        <feGaussianBlur stdDeviation="4.5"/>
+                    </filter>
+                </defs>
+                <rect width="1200" height="1200" fill="#030306"/>
+                <circle cx="622" cy="525" r="535" fill="url(#s23OuterHalo)"/>
+                <!-- Polvo estelar sutil en borde izquierdo -->
+                <g fill="#a3aaff" opacity="0.5">
+                    <circle cx="195" cy="480" r="1.3"/><circle cx="212" cy="510" r="1.1"/><circle cx="182" cy="540" r="1.5"/>
+                    <circle cx="225" cy="445" r="1.0"/><circle cx="204" cy="585" r="1.4"/><circle cx="176" cy="495" r="1.1"/>
+                    <circle cx="235" cy="555" r="1.2"/><circle cx="190" cy="615" r="1.0"/><circle cx="218" cy="415" r="1.3"/>
+                    <circle cx="242" cy="492" r="0.9"/><circle cx="168" cy="565" r="1.2"/><circle cx="228" cy="630" r="1.1"/>
+                </g>
+                <!-- Borde creciente luminoso recortado exactamente al contorno de la esfera -->
+                <g clip-path="url(#s23CrescentClip)">
+                    <circle cx="622" cy="512" r="358" fill="url(#s23CrescentRim)" filter="url(#s23RimBlur)"/>
+                    <circle cx="606" cy="492" r="348" fill="url(#s23SphereBody)"/>
+                </g>
+            </svg>
+        </div>
+
+        <div class="ambient-glow-1" id="glow-1"></div>
+        <div class="ambient-glow-2" id="glow-2"></div>
+    </div>
+
+    <!-- Input oculto para cargar imagen de fondo personalizada -->
+    <input type="file" id="wallpaper-input" accept="image/*" class="hidden" onchange="handleWallpaperSelected(event)">
+
+    <!-- Barra Superior: Presets de Tiempo + Selector de Tema -->
+    <header class="relative z-10 w-full max-w-3xl flex flex-wrap items-center justify-between gap-2.5 mb-5 hide-in-mini">
+        <!-- Presets de intervalos -->
+        <div class="flex flex-wrap items-center gap-2">
+            <button onclick="selectPreset('25-5')" id="preset-25-5"
+                class="preset-btn active-preset themed-pill px-4 py-2 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1.5 cursor-pointer">
+                <span class="font-bold">25 / 5</span>
+                <span class="opacity-60 text-xs">Clásico</span>
+            </button>
+
+            <button onclick="selectPreset('30-5')" id="preset-30-5"
+                class="preset-btn themed-pill px-4 py-2 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1.5 cursor-pointer">
+                <span class="font-bold">30 / 5</span>
+                <span class="opacity-60 text-xs">Intenso</span>
+            </button>
+
+            <button onclick="toggleCustomPanel()" id="preset-custom"
+                class="preset-btn themed-pill px-4 py-2 rounded-full text-xs sm:text-sm font-semibold cursor-pointer">
+                Personalizado
+            </button>
+        </div>
+
+        <!-- Selector de Tema + Sonido -->
+        <div class="flex flex-wrap items-center gap-1.5">
+            <div class="themed-pill p-1 rounded-full flex items-center gap-0.5 text-xs font-medium">
+                <button onclick="setTheme('light')" id="theme-btn-light"
+                    class="theme-chip px-2.5 py-1 rounded-full transition-all cursor-pointer" title="Tema claro">
+                    Claro
+                </button>
+                <button onclick="setTheme('dark')" id="theme-btn-dark"
+                    class="theme-chip px-2.5 py-1 rounded-full transition-all cursor-pointer" title="Tema oscuro">
+                    Oscuro
+                </button>
+                <button onclick="setTheme('neo')" id="theme-btn-neo"
+                    class="theme-chip px-2.5 py-1 rounded-full transition-all cursor-pointer" title="Tema Neo Blue Bars">
+                    Neo
+                </button>
+                <button onclick="setTheme('ultra23')" id="theme-btn-ultra23"
+                    class="theme-chip px-2.5 py-1 rounded-full transition-all cursor-pointer" title="Tema Ultra 23 DeX">
+                    Ultra 23
+                </button>
+                <button onclick="activateWallpaperTheme()" id="theme-btn-wallpaper"
+                    class="theme-chip px-2.5 py-1 rounded-full transition-all flex items-center gap-1 cursor-pointer" title="Elegir imagen de fondo personalizada">
+                    <span>Personalizado</span>
+                </button>
+            </div>
+
+            <!-- Botón de Silencio / Prueba de Sonido -->
+            <button onclick="toggleMute()" id="mute-btn"
+                class="themed-pill w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer"
+                title="Activar / Silenciar sonido">
+                <svg id="icon-sound-on" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/>
+                </svg>
+                <svg id="icon-sound-off" class="w-4 h-4 text-coral hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Panel Desplegable de Tiempo Personalizado -->
+    <div id="custom-panel" class="hidden relative z-10 w-full max-w-3xl mb-5 hide-in-mini">
+        <div class="themed-card rounded-3xl p-4 sm:p-5 flex flex-wrap items-end justify-center gap-4">
+            <div>
+                <label class="block text-xs font-medium opacity-70 mb-1">Estudio (min)</label>
+                <input type="number" id="custom-focus" min="1" max="180" value="40"
+                    class="themed-input w-24 px-3 py-2 rounded-xl text-sm font-semibold text-center">
+            </div>
+            <div>
+                <label class="block text-xs font-medium opacity-70 mb-1">Recreo corto (min)</label>
+                <input type="number" id="custom-short" min="1" max="60" value="8"
+                    class="themed-input w-24 px-3 py-2 rounded-xl text-sm font-semibold text-center">
+            </div>
+            <div>
+                <label class="block text-xs font-medium opacity-70 mb-1">Recreo largo (min)</label>
+                <input type="number" id="custom-long" min="1" max="90" value="15"
+                    class="themed-input w-24 px-3 py-2 rounded-xl text-sm font-semibold text-center">
+            </div>
+            <button onclick="applyCustomTimes()"
+                class="accent-btn font-semibold text-sm px-5 py-2.5 rounded-xl transition-all cursor-pointer">
+                Aplicar tiempos
+            </button>
+        </div>
+    </div>
+
+    <!-- Tarjeta Principal -->
+    <main id="main-card" class="relative z-10 w-full max-w-3xl themed-card rounded-[2rem] p-6 sm:p-10">
+
+        <!-- Pestañas de Intervalo (Estudio / Recreo corto / Recreo largo) -->
+        <div class="themed-tab-track p-1.5 rounded-2xl grid grid-cols-3 gap-1 mb-6 hide-in-mini">
+            <button onclick="switchMode('focus')" id="tab-focus"
+                class="mode-tab themed-tab-active py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer">
+                Estudio
+            </button>
+            <button onclick="switchMode('short')" id="tab-short"
+                class="mode-tab themed-tab-inactive py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer">
+                Recreo corto
+            </button>
+            <button onclick="switchMode('long')" id="tab-long"
+                class="mode-tab themed-tab-inactive py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer">
+                Recreo largo
+            </button>
+        </div>
+
+        <!-- Indicador de Ronda -->
+        <div class="flex items-center justify-center gap-2 text-xs font-medium opacity-75 mb-7 hide-in-mini">
+            <span id="round-label">Ronda 1 de 4</span>
+            <div class="flex items-center gap-1.5" id="round-dots">
+                <span class="w-2 h-2 rounded-full accent-dot"></span>
+                <span class="w-2 h-2 rounded-full bg-current opacity-20"></span>
+                <span class="w-2 h-2 rounded-full bg-current opacity-20"></span>
+                <span class="w-2 h-2 rounded-full bg-current opacity-20"></span>
+            </div>
+        </div>
+
+        <!-- Reloj Flip Clock 3D -->
+        <div id="clock-wrapper" class="flex items-center justify-center gap-2 sm:gap-3.5 my-4">
+            <!-- Minutos -->
+            <div class="flip-unit" id="digit-m1">
+                <div class="flip-half flip-top"><span>2</span></div>
+                <div class="flip-half flip-bottom"><span>2</span></div>
+                <div class="flip-hinge"></div>
+            </div>
+            <div class="flip-unit" id="digit-m2">
+                <div class="flip-half flip-top"><span>5</span></div>
+                <div class="flip-half flip-bottom"><span>5</span></div>
+                <div class="flip-hinge"></div>
+            </div>
+
+            <!-- Dos Puntos -->
+            <div class="flex flex-col gap-3 sm:gap-5 px-0.5 sm:px-1.5">
+                <span class="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full colon-dot"></span>
+                <span class="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full colon-dot"></span>
+            </div>
+
+            <!-- Segundos -->
+            <div class="flip-unit" id="digit-s1">
+                <div class="flip-half flip-top"><span>0</span></div>
+                <div class="flip-half flip-bottom"><span>0</span></div>
+                <div class="flip-hinge"></div>
+            </div>
+            <div class="flip-unit" id="digit-s2">
+                <div class="flip-half flip-top"><span>0</span></div>
+                <div class="flip-half flip-bottom"><span>0</span></div>
+                <div class="flip-hinge"></div>
+            </div>
+        </div>
+
+        <!-- Barra de Progreso Ondulada Estilo OneUI -->
+        <div class="max-w-lg mx-auto mt-6 mb-5 px-1">
+            <div class="relative w-full h-7 flex items-center">
+                <canvas id="oneui-wave-canvas" class="w-full h-full block"></canvas>
+            </div>
+            <div class="flex items-center justify-between text-[11px] sm:text-xs font-semibold opacity-75 mt-1 tabular-nums">
+                <span id="time-elapsed">00:00</span>
+                <span id="progress-percent" class="opacity-60">0%</span>
+                <span id="time-remaining">-25:00</span>
+            </div>
+        </div>
+
+        <!-- Mensaje de Estado o Frase Sarcástica de Recreo -->
+        <div class="min-h-[3.5rem] flex flex-col items-center justify-center text-center px-2 mb-6">
+            <p id="status-message" class="text-sm sm:text-base font-medium opacity-80 transition-all duration-300 max-w-lg">
+                Hora de enfocarse.
+            </p>
+            <button onclick="showNewSarcasticQuote()" id="new-quote-btn"
+                class="hidden mt-2 text-xs font-semibold hover:underline cursor-pointer" style="color: var(--accent-main);">
+                ↻ Tirame otra verdad incómoda
+            </button>
+        </div>
+
+        <!-- Controles Principales -->
+        <div class="flex flex-col items-center gap-3">
+            <div class="flex items-center justify-center gap-3">
+                <button onclick="toggleTimer()" id="start-btn"
+                    class="accent-btn font-semibold text-sm sm:text-base px-9 py-3 rounded-2xl transition-all active:scale-95 cursor-pointer">
+                    Iniciar
+                </button>
+                <button onclick="resetTimer()"
+                    class="themed-pill font-semibold text-sm sm:text-base px-6 py-3 rounded-2xl transition-all active:scale-95 cursor-pointer">
+                    Reiniciar
+                </button>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-center gap-2.5 mt-1">
+                <button onclick="skipInterval()"
+                    class="themed-pill font-medium text-xs sm:text-sm px-4 py-2 rounded-xl transition-all cursor-pointer">
+                    Saltar →
+                </button>
+                <button onclick="toggleFullscreen()"
+                    class="themed-pill font-medium text-xs sm:text-sm px-4 py-2 rounded-xl transition-all hide-in-mini cursor-pointer">
+                    Pantalla completa
+                </button>
+                <button onclick="toggleMiniMode()" id="mini-btn"
+                    class="themed-pill font-medium text-xs sm:text-sm px-4 py-2 rounded-xl transition-all cursor-pointer">
+                    Mini timer
+                </button>
+            </div>
+        </div>
+
+        <!-- Campo de Tarea Actual + Mini Lista To-Do -->
+        <div class="mt-8 pt-6 border-t border-current/10 hide-in-mini">
+            <div class="flex items-center justify-between mb-2.5">
+                <label for="task-input" class="text-xs font-semibold opacity-75">
+                    ¿En qué te vas a enfocar?
+                </label>
+                <div class="flex items-center gap-2">
+                    <button onclick="requestSystemNotificationPermission()" id="notif-perm-btn"
+                        class="text-[11px] font-medium px-2.5 py-1 rounded-full themed-pill opacity-80 hover:opacity-100 cursor-pointer"
+                        title="Activar avisos del sistema al terminar cada bloque">
+                        🔔 Activar avisos
+                    </button>
+                    <button onclick="clearCompletedTasks()" id="clear-tasks-btn"
+                        class="hidden text-[11px] font-medium opacity-60 hover:opacity-100 transition-colors cursor-pointer"
+                        style="color: var(--accent-main);">
+                        Limpiar hechas
+                    </button>
+                </div>
+            </div>
+
+            <form onsubmit="addTaskFromInput(event)" class="flex gap-2">
+                <input type="text" id="task-input"
+                    placeholder="Ej. Repasar fisiología cardiovascular (Enter para agregar)"
+                    class="themed-input flex-1 px-4 py-3 rounded-2xl text-sm transition-all">
+                <button type="submit"
+                    class="themed-pill px-4 py-3 rounded-2xl text-sm font-semibold transition-colors cursor-pointer"
+                    title="Agregar a la lista">
+                    +
+                </button>
+            </form>
+
+            <!-- Lista de tareas pendientes y completadas -->
+            <ul id="task-list" class="mt-3 space-y-1.5 max-h-40 overflow-y-auto pr-1"></ul>
+        </div>
+
+    </main>
+
+    <!-- Pie de Página con Estadísticas y Atajos -->
+    <footer class="relative z-10 mt-5 text-center text-xs opacity-60 space-y-1 hide-in-mini">
+        <p id="session-stats">Hoy: <strong class="opacity-100">0</strong> sesiones · <strong class="opacity-100">0</strong> min enfocados</p>
+        <p class="opacity-80">Espacio — iniciar/pausar · R — reiniciar · S — probar sonido · F — pantalla completa · M — mini timer</p>
+    </footer>
+
+    <!-- Toast de Notificación Interna -->
+    <div id="toast-notification"
+        class="fixed bottom-5 right-5 z-50 themed-card px-5 py-3.5 rounded-2xl text-sm font-medium transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-2.5 max-w-sm">
+        <span class="w-2.5 h-2.5 rounded-full accent-dot animate-ping shrink-0"></span>
+        <span id="toast-text">¡Intervalo completado!</span>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. FRASES MOTIVACIONALES VIOLENTAS / SARCÁSTICAS
+        // ==========================================
+        const sarcasticQuotes = [
+            "Disfrutá estos 5 minutos, porque el examen no se va a aprobar por ósmosis mientras mirás el techo.",
+            "Qué lindo descanso. Lástima que tu futuro yo esté llorando por lo que todavía no leíste.",
+            "Miralo al genio tomando un recreo como si ya supiera todos los temas. Volvé rápido.",
+            "Cinco minutos de libertad. No te encariñes, que la ignorancia no se cura sola.",
+            "Aprovechá para hidratarte, porque después vas a sudar cuando veas las preguntas del parcial.",
+            "¿Cansado de leer? Imaginate lo cansado que vas a estar recursando la materia.",
+            "Descansá un poco, campeón. El éxito claramente puede esperar mientras scrolleás sin sentido.",
+            "Este recreo es cortesía de la ilusión de que vas al día con el programa.",
+            "Estirá las piernas, respirá hondo y acordate de que nadie va a venir a rendir por vos.",
+            "Tomate este respiro antes de volver a pelear con ese tema que fingís entender.",
+            "Cinco minutos para recordar que el título no viene adentro de una caja de cereales.",
+            "Qué tierno, cree que con un bloque de estudio ya tiene la vida resuelta. ¡A seguir!"
+        ];
+
+        // ==========================================
+        // 2. ESTADO GLOBAL DE LA APP
+        // ==========================================
+        const state = {
+            theme: 'dark', // 'light' | 'dark' | 'neo' | 'ultra23' | 'wallpaper'
+            preset: '25-5',
+            durations: {
+                focus: 25 * 60,
+                short: 5 * 60,
+                long: 15 * 60
+            },
+            mode: 'focus',
+            timeLeft: 25 * 60,
+            totalTime: 25 * 60,
+            endTimestamp: null,
+            isRunning: false,
+            timerId: null,
+            round: 1,
+            maxRounds: 4,
+            isMuted: false,
+            currentDigits: ['2', '5', '0', '0'],
+            lastQuoteIndex: -1,
+            completedSessions: 0,
+            focusedMinutes: 0,
+            tasks: []
+        };
+
+        // ==========================================
+        // 3. GESTIÓN DE TEMAS Y WALLPAPER PERSONALIZADO
+        // ==========================================
+        function setTheme(themeName) {
+            state.theme = themeName;
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('pomodoro_theme', themeName);
+
+            document.querySelectorAll('.theme-chip').forEach(btn => {
+                btn.classList.remove('accent-btn', 'shadow-sm');
+            });
+            const activeChip = document.getElementById(`theme-btn-${themeName}`);
+            if (activeChip) {
+                activeChip.classList.add('accent-btn', 'shadow-sm');
+            }
+
+            syncMiniPipWindow();
+        }
+
+        function activateWallpaperTheme() {
+            const savedWp = localStorage.getItem('pomodoro_wallpaper_data');
+            if (savedWp && state.theme !== 'wallpaper') {
+                applyWallpaperImage(savedWp);
+                setTheme('wallpaper');
+            } else {
+                triggerWallpaperPicker();
+            }
+        }
+
+        function triggerWallpaperPicker() {
+            const input = document.getElementById('wallpaper-input');
+            input.value = '';
+            input.click();
+        }
+
+        function handleWallpaperSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                try {
+                    localStorage.setItem('pomodoro_wallpaper_data', dataUrl);
+                } catch (err) {
+                    showToastNotification('Imagen aplicada (muy pesada para guardar en caché).');
+                }
+                applyWallpaperImage(dataUrl);
+                setTheme('wallpaper');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyWallpaperImage(dataUrl) {
+            const layer = document.getElementById('wallpaper-layer');
+            layer.style.backgroundImage = `url('${dataUrl}')`;
+            layer.classList.add('has-image');
+            extractDominantGlows(dataUrl);
+        }
+
+        function extractDominantGlows(dataUrl) {
+            const img = new Image();
+            img.onload = function() {
+                try {
+                    const c = document.createElement('canvas');
+                    c.width = 16;
+                    c.height = 16;
+                    const ctx = c.getContext('2d');
+                    ctx.drawImage(img, 0, 0, 16, 16);
+                    const data = ctx.getImageData(0, 0, 16, 16).data;
+                    let r1 = 0, g1 = 0, b1 = 0, r2 = 0, g2 = 0, b2 = 0;
+                    const half = (data.length / 4) / 2;
+                    for (let i = 0; i < data.length; i += 4) {
+                        const idx = i / 4;
+                        if (idx < half) {
+                            r1 += data[i]; g1 += data[i + 1]; b1 += data[i + 2];
+                        } else {
+                            r2 += data[i]; g2 += data[i + 1]; b2 += data[i + 2];
+                        }
+                    }
+                    r1 = Math.round(r1 / half); g1 = Math.round(g1 / half); b1 = Math.round(b1 / half);
+                    r2 = Math.round(r2 / half); g2 = Math.round(g2 / half); b2 = Math.round(b2 / half);
+                    document.getElementById('glow-1').style.background = `radial-gradient(circle, rgba(${r1},${g1},${b1},0.35) 0%, transparent 70%)`;
+                    document.getElementById('glow-2').style.background = `radial-gradient(circle, rgba(${r2},${g2},${b2},0.35) 0%, transparent 70%)`;
+                } catch (e) {}
+            };
+            img.src = dataUrl;
+        }
+
+        // ==========================================
+        // 4. SINTETIZADOR DE SONIDO (WEB AUDIO API)
+        // ==========================================
+        let audioCtx = null;
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContextClass();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, startTime, duration, type = 'sine', volume = 0.22) {
+            if (state.isMuted) return;
+            initAudioContext();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, startTime);
+
+            gain.gain.setValueAtTime(0.001, startTime);
+            gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        }
+
+        function playStartSound() {
+            if (state.isMuted) return;
+            initAudioContext();
+            const now = audioCtx.currentTime;
+            playTone(523.25, now, 0.4, 'sine', 0.2);        // C5
+            playTone(659.25, now + 0.14, 0.55, 'sine', 0.22); // E5
+        }
+
+        function playEndSound() {
+            if (state.isMuted) return;
+            initAudioContext();
+            const now = audioCtx.currentTime;
+            playTone(880, now, 0.35, 'triangle', 0.25);        // A5
+            playTone(880, now + 0.25, 0.35, 'triangle', 0.25); // A5
+            playTone(1046.5, now + 0.52, 0.7, 'sine', 0.28);   // C6
+        }
+
+        function toggleMute() {
+            state.isMuted = !state.isMuted;
+            document.getElementById('icon-sound-on').classList.toggle('hidden', state.isMuted);
+            document.getElementById('icon-sound-off').classList.toggle('hidden', !state.isMuted);
+            if (!state.isMuted) {
+                playStartSound();
+                showToastNotification('Sonido activado');
+            } else {
+                showToastNotification('Sonido silenciado');
+            }
+        }
+
+        // ==========================================
+        // 5. ANIMACIÓN FLIP CLOCK 3D MECÁNICA
+        // ==========================================
+        function renderFlipDigit(elementId, newDigit, instant = false) {
+            const container = document.getElementById(elementId);
+            if (!container) return;
+
+            const topStatic = container.querySelector('.flip-top span');
+            const bottomStatic = container.querySelector('.flip-bottom span');
+            const oldDigit = topStatic.textContent;
+
+            if (oldDigit === newDigit || instant) {
+                topStatic.textContent = newDigit;
+                bottomStatic.textContent = newDigit;
+                return;
+            }
+
+            container.querySelectorAll('.flip-flap-top, .flip-flap-bottom').forEach(el => el.remove());
+
+            topStatic.textContent = newDigit;
+            bottomStatic.textContent = oldDigit;
+
+            const flapTop = document.createElement('div');
+            flapTop.className = 'flip-half flip-top flip-flap-top';
+            flapTop.innerHTML = `<span>${oldDigit}</span>`;
+
+            const flapBottom = document.createElement('div');
+            flapBottom.className = 'flip-half flip-bottom flip-flap-bottom';
+            flapBottom.innerHTML = `<span>${newDigit}</span>`;
+
+            container.appendChild(flapTop);
+            container.appendChild(flapBottom);
+
+            setTimeout(() => {
+                bottomStatic.textContent = newDigit;
+                flapTop.remove();
+                flapBottom.remove();
+            }, 680);
+        }
+
+        // ==========================================
+        // 6. BARRA DE PROGRESO ONDULADA ESTILO ONEUI
+        // ==========================================
+        let wavePhase = 0;
+        let currentAmplitude = 0;
+
+        function initOneUIWaveCanvas() {
+            const canvas = document.getElementById('oneui-wave-canvas');
+            const ctx = canvas.getContext('2d');
+
+            function resizeCanvas() {
+                const rect = canvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            function drawWaveFrame() {
+                const width = canvas.clientWidth;
+                const height = canvas.clientHeight;
+                ctx.clearRect(0, 0, width, height);
+
+                const centerY = height / 2;
+                const padX = 8;
+                const usableWidth = Math.max(10, width - padX * 2);
+
+                const elapsed = state.totalTime - state.timeLeft;
+                const ratio = state.totalTime > 0 ? Math.min(1, Math.max(0, elapsed / state.totalTime)) : 0;
+                const thumbX = padX + usableWidth * ratio;
+
+                const styles = getComputedStyle(document.documentElement);
+                const accentColor = styles.getPropertyValue('--accent-main').trim() || '#f0643b';
+                const trackColor = styles.getPropertyValue('--wave-track').trim() || 'rgba(128,128,128,0.2)';
+
+                const targetAmp = (state.isRunning && ratio > 0.01 && ratio < 0.995) ? 4.2 : 0;
+                currentAmplitude += (targetAmp - currentAmplitude) * 0.1;
+                if (state.isRunning) {
+                    wavePhase += 0.085;
+                }
+
+                // 1. Pista restante
+                ctx.beginPath();
+                ctx.strokeStyle = trackColor;
+                ctx.lineWidth = 4.5;
+                ctx.lineCap = 'round';
+                ctx.moveTo(thumbX, centerY);
+                ctx.lineTo(padX + usableWidth, centerY);
+                ctx.stroke();
+
+                // 2. Parte transcurrida ondulada
+                ctx.beginPath();
+                ctx.strokeStyle = accentColor;
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+
+                const steps = Math.max(2, Math.floor(thumbX - padX));
+                for (let i = 0; i <= steps; i++) {
+                    const x = padX + i;
+                    const progressAlongSegment = steps > 0 ? i / steps : 0;
+                    const envelope = Math.sin(progressAlongSegment * Math.PI);
+                    const y = centerY + Math.sin(x * 0.075 - wavePhase) * currentAmplitude * envelope;
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                if (steps <= 2) {
+                    ctx.moveTo(padX, centerY);
+                    ctx.lineTo(thumbX, centerY);
+                }
+                ctx.stroke();
+
+                // 3. Cabezal circular brillante
+                ctx.beginPath();
+                ctx.fillStyle = accentColor;
+                ctx.arc(thumbX, centerY, 6.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                requestAnimationFrame(drawWaveFrame);
+            }
+
+            requestAnimationFrame(drawWaveFrame);
+        }
+
+        // ==========================================
+        // 7. LÓGICA DEL TEMPORIZADOR Y ACTUALIZACIÓN UI
+        // ==========================================
+        function formatMMSS(totalSeconds) {
+            const safeSecs = Math.max(0, totalSeconds);
+            const mins = Math.floor(safeSecs / 60);
+            const secs = safeSecs % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updateDisplay(instant = false) {
+            const mins = Math.floor(state.timeLeft / 60);
+            const secs = state.timeLeft % 60;
+            const mStr = String(mins).padStart(2, '0');
+            const sStr = String(secs).padStart(2, '0');
+            const digits = [mStr[0], mStr[1], sStr[0], sStr[1]];
+
+            renderFlipDigit('digit-m1', digits[0], instant);
+            renderFlipDigit('digit-m2', digits[1], instant);
+            renderFlipDigit('digit-s1', digits[2], instant);
+            renderFlipDigit('digit-s2', digits[3], instant);
+
+            state.currentDigits = digits;
+
+            const elapsed = state.totalTime - state.timeLeft;
+            const pct = state.totalTime > 0 ? Math.round((elapsed / state.totalTime) * 100) : 0;
+            document.getElementById('time-elapsed').textContent = formatMMSS(elapsed);
+            document.getElementById('time-remaining').textContent = `-${formatMMSS(state.timeLeft)}`;
+            document.getElementById('progress-percent').textContent = `${pct}%`;
+
+            const modeTag = state.mode === 'focus' ? 'Estudio' : 'Recreo';
+            document.title = `${mStr}:${sStr} · ${modeTag}`;
+
+            syncMiniPipWindow(instant);
+        }
+
+        function toggleTimer() {
+            if (state.isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (state.isRunning) return;
+
+            if (state.timeLeft === state.totalTime) {
+                playStartSound();
+            }
+
+            if ('Notification' in window && Notification.permission === 'default') {
+                requestSystemNotificationPermission(true);
+            }
+
+            state.isRunning = true;
+            state.endTimestamp = Date.now() + state.timeLeft * 1000;
+            const startBtn = document.getElementById('start-btn');
+            startBtn.textContent = 'Pausar';
+            syncMiniPipWindow();
+
+            state.timerId = setInterval(() => {
+                const remainingMs = state.endTimestamp - Date.now();
+                const nextSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
+
+                if (nextSeconds !== state.timeLeft) {
+                    state.timeLeft = nextSeconds;
+                    updateDisplay(false);
+                }
+
+                if (remainingMs <= 0) {
+                    state.timeLeft = 0;
+                    updateDisplay(false);
+                    handleIntervalComplete();
+                }
+            }, 250);
+        }
+
+        function pauseTimer() {
+            if (state.isRunning && state.endTimestamp) {
+                state.timeLeft = Math.max(0, Math.ceil((state.endTimestamp - Date.now()) / 1000));
+            }
+            state.isRunning = false;
+            state.endTimestamp = null;
+            clearInterval(state.timerId);
+            document.getElementById('start-btn').textContent = 'Iniciar';
+            syncMiniPipWindow();
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            state.timeLeft = state.totalTime;
+            updateDisplay(true);
+        }
+
+        function skipInterval() {
+            handleIntervalComplete();
+        }
+
+        function handleIntervalComplete() {
+            const finishedMode = state.mode;
+            pauseTimer();
+            playEndSound();
+
+            if (finishedMode === 'focus') {
+                state.completedSessions++;
+                state.focusedMinutes += Math.round(state.durations.focus / 60);
+                updateSessionStatsUI();
+
+                if (state.round < state.maxRounds) {
+                    switchMode('short');
+                } else {
+                    switchMode('long');
+                }
+
+                const currentQuote = state.lastQuoteIndex >= 0
+                    ? sarcasticQuotes[state.lastQuoteIndex]
+                    : 'Arrancó tu recreo. Aprovechalo antes de volver.';
+                sendSystemNotification('¡Bloque de estudio terminado!', currentQuote);
+            } else {
+                if (finishedMode === 'long') {
+                    state.round = 1;
+                } else {
+                    state.round = Math.min(state.maxRounds, state.round + 1);
+                }
+                updateRoundUI();
+                switchMode('focus');
+
+                const activeTask = getActiveTaskText();
+                const bodyMsg = activeTask
+                    ? `Volvé a enfocarte en: ${activeTask}`
+                    : 'Se terminó el recreo. Hora de volver a estudiar.';
+                sendSystemNotification('¡Se terminó el recreo!', bodyMsg);
+            }
+        }
+
+        function switchMode(newMode) {
+            pauseTimer();
+            state.mode = newMode;
+            state.totalTime = state.durations[newMode];
+            state.timeLeft = state.totalTime;
+
+            ['focus', 'short', 'long'].forEach(m => {
+                const tab = document.getElementById(`tab-${m}`);
+                if (m === newMode) {
+                    tab.classList.remove('themed-tab-inactive');
+                    tab.classList.add('themed-tab-active');
+                } else {
+                    tab.classList.remove('themed-tab-active');
+                    tab.classList.add('themed-tab-inactive');
+                }
+            });
+
+            updateStatusMessage();
+            updateDisplay(true);
+        }
+
+        function updateStatusMessage() {
+            const msgEl = document.getElementById('status-message');
+            const quoteBtn = document.getElementById('new-quote-btn');
+
+            if (state.mode === 'focus') {
+                msgEl.textContent = 'Hora de enfocarse.';
+                msgEl.classList.remove('italic', 'font-semibold');
+                quoteBtn.classList.add('hidden');
+            } else {
+                showNewSarcasticQuote();
+                msgEl.classList.add('italic', 'font-semibold');
+                quoteBtn.classList.remove('hidden');
+            }
+            syncMiniPipWindow();
+        }
+
+        function showNewSarcasticQuote() {
+            let idx;
+            do {
+                idx = Math.floor(Math.random() * sarcasticQuotes.length);
+            } while (idx === state.lastQuoteIndex && sarcasticQuotes.length > 1);
+
+            state.lastQuoteIndex = idx;
+            document.getElementById('status-message').textContent = `“${sarcasticQuotes[idx]}”`;
+            syncMiniPipWindow();
+        }
+
+        function updateRoundUI() {
+            document.getElementById('round-label').textContent = `Ronda ${state.round} de ${state.maxRounds}`;
+            const dots = document.getElementById('round-dots').children;
+            for (let i = 0; i < dots.length; i++) {
+                if (i < state.round) {
+                    dots[i].className = 'w-2 h-2 rounded-full accent-dot transition-all';
+                } else {
+                    dots[i].className = 'w-2 h-2 rounded-full bg-current opacity-20 transition-all';
+                }
+            }
+        }
+
+        function updateSessionStatsUI() {
+            document.getElementById('session-stats').innerHTML =
+                `Hoy: <strong class="opacity-100">${state.completedSessions}</strong> sesiones · <strong class="opacity-100">${state.focusedMinutes}</strong> min enfocados`;
+        }
+
+        // ==========================================
+        // 8. PRESETS Y TIEMPO PERSONALIZADO
+        // ==========================================
+        function selectPreset(presetId) {
+            state.preset = presetId;
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active-preset'));
+            document.getElementById(`preset-${presetId}`).classList.add('active-preset');
+            document.getElementById('custom-panel').classList.add('hidden');
+
+            if (presetId === '25-5') {
+                state.durations = { focus: 25 * 60, short: 5 * 60, long: 15 * 60 };
+            } else if (presetId === '30-5') {
+                state.durations = { focus: 30 * 60, short: 5 * 60, long: 15 * 60 };
+            }
+            switchMode('focus');
+        }
+
+        function toggleCustomPanel() {
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active-preset'));
+            document.getElementById('preset-custom').classList.add('active-preset');
+            document.getElementById('custom-panel').classList.toggle('hidden');
+        }
+
+        function applyCustomTimes() {
+            const f = Math.max(1, Math.min(180, parseInt(document.getElementById('custom-focus').value, 10) || 25));
+            const s = Math.max(1, Math.min(60, parseInt(document.getElementById('custom-short').value, 10) || 5));
+            const l = Math.max(1, Math.min(90, parseInt(document.getElementById('custom-long').value, 10) || 15));
+
+            state.preset = 'custom';
+            state.durations = { focus: f * 60, short: s * 60, long: l * 60 };
+            document.getElementById('custom-panel').classList.add('hidden');
+            switchMode('focus');
+            showToastNotification(`Tiempos personalizados aplicados: ${f}/${s} min`);
+        }
+
+        // ==========================================
+        // 9. NOTIFICACIONES NATIVAS DEL SISTEMA OPERATIVO
+        // ==========================================
+        function updateNotificationButtonUI() {
+            const btn = document.getElementById('notif-perm-btn');
+            if (!btn || !('Notification' in window)) {
+                if (btn) btn.classList.add('hidden');
+                return;
+            }
+            if (Notification.permission === 'granted') {
+                btn.textContent = '🔔 Avisos activos';
+            } else if (Notification.permission === 'denied') {
+                btn.textContent = '🔕 Avisos bloqueados';
+            } else {
+                btn.textContent = '🔔 Activar avisos';
+            }
+        }
+
+        function requestSystemNotificationPermission(silent = false) {
+            if (!('Notification' in window)) {
+                if (!silent) showToastNotification('Tu navegador no soporta notificaciones nativas.');
+                return;
+            }
+            if (Notification.permission === 'granted') {
+                if (!silent) showToastNotification('Las notificaciones del sistema ya están activas.');
+                updateNotificationButtonUI();
+                return;
+            }
+            Notification.requestPermission().then((perm) => {
+                updateNotificationButtonUI();
+                if (!silent && perm === 'granted') {
+                    showToastNotification('Avisos activados: te notificaremos al terminar cada bloque.');
+                }
+            }).catch(() => {});
+        }
+
+        function sendSystemNotification(title, body) {
+            showToastNotification(`${title} — ${body}`);
+            if ('Notification' in window && Notification.permission === 'granted') {
+                try {
+                    const notif = new Notification(title, {
+                        body,
+                        silent: true
+                    });
+                    notif.onclick = () => {
+                        window.focus();
+                        notif.close();
+                    };
+                } catch (e) {}
+            }
+        }
+
+        function showToastNotification(msg) {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-text').textContent = msg;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            clearTimeout(window._toastTimeout);
+            window._toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 4200);
+        }
+
+        // ==========================================
+        // 10. PANTALLA COMPLETA Y MINI TIMER ALWAYS-ON-TOP
+        // ==========================================
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
+
+        let miniPipWindow = null;
+
+        async function toggleMiniMode() {
+            if (miniPipWindow && !miniPipWindow.closed) {
+                miniPipWindow.close();
+                miniPipWindow = null;
+                return;
+            }
+
+            if ('documentPictureInPicture' in window) {
+                try {
+                    const pipWin = await window.documentPictureInPicture.requestWindow({
+                        width: 340,
+                        height: 275
+                    });
+                    setupFloatingMiniWindow(pipWin);
+                    return;
+                } catch (err) {}
+            }
+
+            const popup = window.open('', 'PomodoroMiniTimer', 'width=340,height=285,menubar=no,toolbar=no,location=no,status=no');
+            if (popup) {
+                setupFloatingMiniWindow(popup);
+            } else {
+                document.body.classList.toggle('mini-mode');
+                showToastNotification('Activado modo compacto (habilitá ventanas emergentes para desacoplarlo).');
+            }
+        }
+
+        function getMiniThemePalette() {
+            const palettes = {
+                light: {
+                    bg: '#f7f3ee', text: '#1a1a1a', muted: '#7a756d',
+                    accent: '#f0643b', btnText: '#ffffff',
+                    cardTop: '#efebe4', cardBottom: '#e5e0d7', cardBorder: 'rgba(0,0,0,0.08)', hinge: 'rgba(155,148,138,0.45)',
+                    pillBg: '#ece7df', track: 'rgba(0,0,0,0.12)'
+                },
+                dark: {
+                    bg: '#0d0d0f', text: '#f5f5f5', muted: '#9a9aa2',
+                    accent: '#f0643b', btnText: '#ffffff',
+                    cardTop: '#242429', cardBottom: '#1c1c21', cardBorder: 'rgba(255,255,255,0.09)', hinge: 'rgba(0,0,0,0.8)',
+                    pillBg: '#1c1c20', track: 'rgba(255,255,255,0.14)'
+                },
+                neo: {
+                    bg: '#081822', text: '#eef8fd', muted: '#8ec0d9',
+                    accent: '#5cc2f2', btnText: '#061824',
+                    cardTop: '#13344a', cardBottom: '#0d2638', cardBorder: 'rgba(145,212,245,0.2)', hinge: 'rgba(3,12,20,0.85)',
+                    pillBg: '#102d40', track: 'rgba(174,224,248,0.18)'
+                },
+                ultra23: {
+                    bg: '#05050a', text: '#f2f3ff', muted: '#9aa0cc',
+                    accent: '#7880f0', btnText: '#ffffff',
+                    cardTop: '#1c1e30', cardBottom: '#141624', cardBorder: 'rgba(130,140,248,0.2)', hinge: 'rgba(4,4,10,0.88)',
+                    pillBg: '#151726', track: 'rgba(155,165,255,0.18)'
+                },
+                wallpaper: {
+                    bg: '#121215', text: '#ffffff', muted: 'rgba(255,255,255,0.68)',
+                    accent: '#f0643b', btnText: '#ffffff',
+                    cardTop: '#26262c', cardBottom: '#1d1d22', cardBorder: 'rgba(255,255,255,0.12)', hinge: 'rgba(0,0,0,0.75)',
+                    pillBg: '#222227', track: 'rgba(255,255,255,0.16)'
+                }
+            };
+            return palettes[state.theme] || palettes.dark;
+        }
+
+        function setupFloatingMiniWindow(win) {
+            miniPipWindow = win;
+            const doc = win.document;
+            doc.title = 'Mini Timer · Pomodoro';
+
+            doc.body.innerHTML = `
+                <style>
+                    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+                    body {
+                        height: 100vh;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                        padding: 16px 18px;
+                        user-select: none;
+                        transition: background-color 0.3s ease, color 0.3s ease;
+                    }
+                    .top-row {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        font-size: 10px;
+                        font-weight: 700;
+                        letter-spacing: 0.12em;
+                        text-transform: uppercase;
+                    }
+                    .mini-clock {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 6px;
+                        margin: 6px 0;
+                    }
+                    .m-flip {
+                        position: relative;
+                        width: 52px;
+                        height: 76px;
+                        border-radius: 11px;
+                        perspective: 700px;
+                        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+                    }
+                    .m-half {
+                        position: absolute;
+                        left: 0;
+                        width: 100%;
+                        height: 50%;
+                        overflow: hidden;
+                        backface-visibility: hidden;
+                    }
+                    .m-half span {
+                        position: absolute;
+                        left: 0;
+                        width: 100%;
+                        height: 200%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: 800;
+                        font-size: 2.75rem;
+                        line-height: 1;
+                        font-variant-numeric: tabular-nums;
+                    }
+                    .m-top { top: 0; border-radius: 11px 11px 0 0; transform-origin: 50% 100%; }
+                    .m-top span { top: 0; }
+                    .m-bottom { bottom: 0; border-radius: 0 0 11px 11px; transform-origin: 50% 0%; }
+                    .m-bottom span { bottom: 0; }
+                    .m-hinge {
+                        position: absolute;
+                        top: 50%;
+                        left: 0;
+                        right: 0;
+                        height: 1.5px;
+                        transform: translateY(-50%);
+                        z-index: 6;
+                    }
+                    .m-flap-top { z-index: 4; animation: mFlipTop 0.32s ease-in forwards; }
+                    .m-flap-bottom { z-index: 5; transform: rotateX(90deg); animation: mFlipBottom 0.32s ease-out 0.32s forwards; }
+                    @keyframes mFlipTop { 0% { transform: rotateX(0deg); } 100% { transform: rotateX(-90deg); } }
+                    @keyframes mFlipBottom { 0% { transform: rotateX(90deg); } 100% { transform: rotateX(0deg); } }
+                    .m-colon {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                        padding: 0 1px;
+                    }
+                    .m-colon i {
+                        display: block;
+                        width: 6px;
+                        height: 6px;
+                        border-radius: 999px;
+                    }
+                    .bar-track {
+                        width: 100%;
+                        height: 4px;
+                        border-radius: 999px;
+                        overflow: hidden;
+                    }
+                    .bar-fill {
+                        height: 100%;
+                        width: 0%;
+                        border-radius: 999px;
+                        transition: width 0.25s linear;
+                    }
+                    .subtitle {
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 500;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        padding: 2px 4px;
+                    }
+                    .controls {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        gap: 8px;
+                    }
+                    button {
+                        border: none;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 13px;
+                        border-radius: 12px;
+                        transition: transform 0.12s ease, opacity 0.15s ease;
+                    }
+                    button:active { transform: scale(0.95); }
+                    #mini-start { padding: 9px 24px; }
+                    .icon-btn { padding: 9px 12px; }
+                </style>
+
+                <div class="top-row">
+                    <span id="mini-mode">FOCUS</span>
+                    <span id="mini-round">RONDA 1/4</span>
+                </div>
+
+                <div class="mini-clock">
+                    <div class="m-flip" id="m-d1"><div class="m-half m-top"><span>2</span></div><div class="m-half m-bottom"><span>2</span></div><div class="m-hinge"></div></div>
+                    <div class="m-flip" id="m-d2"><div class="m-half m-top"><span>5</span></div><div class="m-half m-bottom"><span>5</span></div><div class="m-hinge"></div></div>
+                    <div class="m-colon"><i id="mc-1"></i><i id="mc-2"></i></div>
+                    <div class="m-flip" id="m-d3"><div class="m-half m-top"><span>0</span></div><div class="m-half m-bottom"><span>0</span></div><div class="m-hinge"></div></div>
+                    <div class="m-flip" id="m-d4"><div class="m-half m-top"><span>0</span></div><div class="m-half m-bottom"><span>0</span></div><div class="m-hinge"></div></div>
+                </div>
+
+                <div class="bar-track" id="mini-track">
+                    <div class="bar-fill" id="mini-fill"></div>
+                </div>
+
+                <div class="subtitle" id="mini-subtitle">Pomodoro Focus</div>
+
+                <div class="controls">
+                    <button id="mini-start">Iniciar</button>
+                    <button id="mini-reset" class="icon-btn" title="Reiniciar">↻</button>
+                    <button id="mini-skip" class="icon-btn" title="Saltar">→</button>
+                </div>
+            `;
+
+            doc.getElementById('mini-start').onclick = () => toggleTimer();
+            doc.getElementById('mini-reset').onclick = () => resetTimer();
+            doc.getElementById('mini-skip').onclick = () => skipInterval();
+
+            win.addEventListener('pagehide', () => {
+                miniPipWindow = null;
+            });
+
+            syncMiniPipWindow(true);
+        }
+
+        function renderMiniFlipDigit(doc, id, newDigit, palette, instant = false) {
+            const box = doc.getElementById(id);
+            if (!box) return;
+
+            const topEl = box.querySelector('.m-top');
+            const bottomEl = box.querySelector('.m-bottom');
+            const hingeEl = box.querySelector('.m-hinge');
+            const topSpan = topEl.querySelector('span');
+            const bottomSpan = bottomEl.querySelector('span');
+
+            topEl.style.backgroundColor = palette.cardTop;
+            bottomEl.style.backgroundColor = palette.cardBottom;
+            topEl.style.borderTop = `1px solid ${palette.cardBorder}`;
+            bottomEl.style.borderBottom = `1px solid ${palette.cardBorder}`;
+            hingeEl.style.backgroundColor = palette.hinge;
+            topSpan.style.color = palette.text;
+            bottomSpan.style.color = palette.text;
+
+            const oldDigit = topSpan.textContent;
+            if (oldDigit === newDigit || instant) {
+                topSpan.textContent = newDigit;
+                bottomSpan.textContent = newDigit;
+                return;
+            }
+
+            box.querySelectorAll('.m-flap-top, .m-flap-bottom').forEach(el => el.remove());
+            topSpan.textContent = newDigit;
+            bottomSpan.textContent = oldDigit;
+
+            const flapTop = doc.createElement('div');
+            flapTop.className = 'm-half m-top m-flap-top';
+            flapTop.style.backgroundColor = palette.cardTop;
+            flapTop.innerHTML = `<span style="color:${palette.text}">${oldDigit}</span>`;
+
+            const flapBottom = doc.createElement('div');
+            flapBottom.className = 'm-half m-bottom m-flap-bottom';
+            flapBottom.style.backgroundColor = palette.cardBottom;
+            flapBottom.innerHTML = `<span style="color:${palette.text}">${newDigit}</span>`;
+
+            box.appendChild(flapTop);
+            box.appendChild(flapBottom);
+
+            setTimeout(() => {
+                if (!doc.body) return;
+                bottomSpan.textContent = newDigit;
+                flapTop.remove();
+                flapBottom.remove();
+            }, 650);
+        }
+
+        function syncMiniPipWindow(instant = false) {
+            if (!miniPipWindow || miniPipWindow.closed) return;
+            const doc = miniPipWindow.document;
+            const palette = getMiniThemePalette();
+
+            doc.body.style.backgroundColor = palette.bg;
+            doc.body.style.color = palette.text;
+
+            const modeNames = { focus: 'FOCUS', short: 'RECREO CORTO', long: 'RECREO LARGO' };
+            const modeEl = doc.getElementById('mini-mode');
+            const roundEl = doc.getElementById('mini-round');
+            modeEl.textContent = modeNames[state.mode] || 'FOCUS';
+            modeEl.style.color = palette.muted;
+            roundEl.textContent = `RONDA ${state.round}/${state.maxRounds}`;
+            roundEl.style.color = palette.muted;
+
+            const mins = Math.floor(state.timeLeft / 60);
+            const secs = state.timeLeft % 60;
+            const mStr = String(mins).padStart(2, '0');
+            const sStr = String(secs).padStart(2, '0');
+
+            renderMiniFlipDigit(doc, 'm-d1', mStr[0], palette, instant);
+            renderMiniFlipDigit(doc, 'm-d2', mStr[1], palette, instant);
+            renderMiniFlipDigit(doc, 'm-d3', sStr[0], palette, instant);
+            renderMiniFlipDigit(doc, 'm-d4', sStr[1], palette, instant);
+
+            doc.getElementById('mc-1').style.backgroundColor = palette.muted;
+            doc.getElementById('mc-2').style.backgroundColor = palette.muted;
+
+            const elapsed = state.totalTime - state.timeLeft;
+            const pct = state.totalTime > 0 ? Math.min(100, Math.max(0, (elapsed / state.totalTime) * 100)) : 0;
+            const trackEl = doc.getElementById('mini-track');
+            const fillEl = doc.getElementById('mini-fill');
+            trackEl.style.backgroundColor = palette.track;
+            fillEl.style.backgroundColor = palette.accent;
+            fillEl.style.width = `${pct}%`;
+
+            const subtitleEl = doc.getElementById('mini-subtitle');
+            subtitleEl.style.color = palette.muted;
+            if (state.mode === 'focus') {
+                const currentTask = getActiveTaskText();
+                subtitleEl.textContent = currentTask || 'Pomodoro Focus';
+            } else {
+                const quote = state.lastQuoteIndex >= 0 ? sarcasticQuotes[state.lastQuoteIndex] : 'Recreo activo';
+                subtitleEl.textContent = quote;
+            }
+
+            const startBtn = doc.getElementById('mini-start');
+            startBtn.textContent = state.isRunning ? 'Pausar' : 'Iniciar';
+            startBtn.style.backgroundColor = palette.accent;
+            startBtn.style.color = palette.btnText;
+
+            const resetBtn = doc.getElementById('mini-reset');
+            const skipBtn = doc.getElementById('mini-skip');
+            resetBtn.style.backgroundColor = palette.pillBg;
+            resetBtn.style.color = palette.text;
+            skipBtn.style.backgroundColor = palette.pillBg;
+            skipBtn.style.color = palette.text;
+        }
+
+        // ==========================================
+        // 11. MINI LISTA DE TAREAS (TO-DO DE SESIÓN)
+        // ==========================================
+        const taskInput = document.getElementById('task-input');
+        taskInput.value = localStorage.getItem('pomodoro_current_task') || '';
+        taskInput.addEventListener('input', (e) => {
+            localStorage.setItem('pomodoro_current_task', e.target.value);
+            syncMiniPipWindow();
+        });
+
+        function loadTasks() {
+            try {
+                state.tasks = JSON.parse(localStorage.getItem('pomodoro_tasks_list') || '[]');
+            } catch (e) {
+                state.tasks = [];
+            }
+            renderTaskList();
+        }
+
+        function saveTasks() {
+            localStorage.setItem('pomodoro_tasks_list', JSON.stringify(state.tasks));
+            renderTaskList();
+            syncMiniPipWindow();
+        }
+
+        function getActiveTaskText() {
+            const typed = taskInput.value.trim();
+            if (typed) return typed;
+            const pending = state.tasks.find(t => !t.done);
+            return pending ? pending.text : '';
+        }
+
+        function addTaskFromInput(event) {
+            if (event) event.preventDefault();
+            const text = taskInput.value.trim();
+            if (!text) return;
+
+            state.tasks.unshift({
+                id: Date.now(),
+                text,
+                done: false
+            });
+            taskInput.value = '';
+            localStorage.setItem('pomodoro_current_task', '');
+            saveTasks();
+        }
+
+        function toggleTaskDone(id) {
+            state.tasks = state.tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+            saveTasks();
+        }
+
+        function deleteTask(id) {
+            state.tasks = state.tasks.filter(t => t.id !== id);
+            saveTasks();
+        }
+
+        function clearCompletedTasks() {
+            state.tasks = state.tasks.filter(t => !t.done);
+            saveTasks();
+        }
+
+        function renderTaskList() {
+            const listEl = document.getElementById('task-list');
+            const clearBtn = document.getElementById('clear-tasks-btn');
+            if (!listEl) return;
+
+            const hasDone = state.tasks.some(t => t.done);
+            if (clearBtn) {
+                clearBtn.classList.toggle('hidden', !hasDone);
+            }
+
+            listEl.innerHTML = '';
+            state.tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center justify-between gap-2.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm transition-all border border-transparent hover:border-current/10';
+                li.style.backgroundColor = 'var(--input-bg)';
+
+                const leftBtn = document.createElement('button');
+                leftBtn.type = 'button';
+                leftBtn.className = 'flex items-center gap-2.5 flex-1 text-left min-w-0 cursor-pointer';
+                leftBtn.onclick = () => toggleTaskDone(task.id);
+
+                const checkCircle = document.createElement('span');
+                checkCircle.className = task.done
+                    ? 'w-4 h-4 rounded-full accent-btn flex items-center justify-center text-[10px] shrink-0'
+                    : 'w-4 h-4 rounded-full border border-current/35 shrink-0';
+                checkCircle.textContent = task.done ? '✓' : '';
+
+                const labelSpan = document.createElement('span');
+                labelSpan.className = task.done
+                    ? 'truncate line-through opacity-50'
+                    : 'truncate font-medium';
+                labelSpan.textContent = task.text;
+
+                leftBtn.appendChild(checkCircle);
+                leftBtn.appendChild(labelSpan);
+
+                const delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'opacity-45 hover:opacity-100 px-1.5 py-0.5 text-xs shrink-0 transition-opacity cursor-pointer';
+                delBtn.title = 'Eliminar tarea';
+                delBtn.textContent = '✕';
+                delBtn.onclick = () => deleteTask(task.id);
+
+                li.appendChild(leftBtn);
+                li.appendChild(delBtn);
+                listEl.appendChild(li);
+            });
+        }
+
+        // Atajos de teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            if (e.code === 'Space') {
+                e.preventDefault();
+                toggleTimer();
+            } else if (e.key.toLowerCase() === 'r') {
+                resetTimer();
+            } else if (e.key.toLowerCase() === 's') {
+                playEndSound();
+                showToastNotification('Prueba de sonido reproducida');
+            } else if (e.key.toLowerCase() === 'f') {
+                toggleFullscreen();
+            } else if (e.key.toLowerCase() === 'm') {
+                toggleMiniMode();
+            }
+        });
+
+        // ==========================================
+        // 12. INICIALIZACIÓN
+        // ==========================================
+        window.onload = () => {
+            try {
+                let savedTheme = localStorage.getItem('pomodoro_theme') || 'dark';
+                if (savedTheme === 'mac') savedTheme = 'neo';
+                if (savedTheme === 's23Ultra' || savedTheme === 'Ultra 23') savedTheme = 'ultra23';
+
+                const savedWp = localStorage.getItem('pomodoro_wallpaper_data');
+                if (savedWp) {
+                    applyWallpaperImage(savedWp);
+                }
+                setTheme(savedTheme === 'wallpaper' && !savedWp ? 'dark' : savedTheme);
+            } catch (e) {
+                setTheme('dark');
+            }
+
+            try { loadTasks(); } catch (e) {}
+            updateNotificationButtonUI();
+            updateRoundUI();
+            updateSessionStatsUI();
+            updateStatusMessage();
+            updateDisplay(true);
+            initOneUIWaveCanvas();
+        };
+    </script>
+</body>
+</html>
